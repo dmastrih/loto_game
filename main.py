@@ -3,7 +3,7 @@ import random
 
 class Card:
 
-    def __init__(self, player="Computer"):
+    def __init__(self, player):
         self.player = player
         self._width = 9
         self._height = 3
@@ -71,7 +71,7 @@ class Pouch:
 
 class Game:
 
-    def __init__(self, player_1="Computer_1", player_2="Computer_2"):
+    def __init__(self, player_1="User1", player_2="Computer1"):
         self.player_1 = Card(player_1)
         self.player_2 = Card(player_2)
         self.pouch = Pouch()
@@ -83,43 +83,62 @@ class Game:
         print(f"__Карточка {self.player_1.player}__\n{self.player_1}")
         print(f"__Карточка {self.player_2.player}__\n{self.player_2}")
 
-        user_1_answer = input(
-            f"{self.player_1.player} Зачеркнуть цифру или продолжить? (з/п):").lower().strip()
-        user_2_answer = input(
-            f"{self.player_2.player} Зачеркнуть цифру или продолжить? (з/п):").lower().strip()
+        for user in [self.player_1, self.player_2]:
+            if user.player[:-1] == "Computer":
+                if barrel in user:
+                    user.change_card_list(barrel)
+                    if user.game_over():
+                        return f"{user.player} win!"
 
-        if (user_1_answer == "зачеркнуть" and barrel not in self.player_1) or (
-                user_1_answer == "продолжить" and barrel in self.player_1):
-            return 0
+            if user.player[:-1] == "User":
 
-        if user_1_answer == "зачеркнуть" and barrel in self.player_1:
-            self.player_1.change_card_list(barrel)
-            if self.player_1.game_over():
-                return 1
+                user_answer = input(
+                    f"{user.player} Зачеркнуть цифру или продолжить? (з/п):").lower().strip()
 
-        if (user_2_answer == "зачеркнуть" and barrel not in self.player_2) or (
-                user_2_answer == "продолжить" and barrel in self.player_2):
-            return 3
+                if (user_answer == "з" and barrel not in user) or (
+                        user_answer == "п" and barrel in user):
+                    return f"{user.player} lose"
 
-        if user_2_answer == "зачеркнуть" and barrel in self.player_2:
-            self.player_2.change_card_list(barrel)
-            if self.player_2.game_over():
-                return 4
+                if barrel in user:
+                    user.change_card_list(barrel)
+                    if user.game_over():
+                        return f"{user.player} win!"
+
+
+def start_game():
+    parameters = input("1 - Игра по умолчанию (User/Computer)\n" + "2 - (Computer/Computer)\n"
+                       + "3 - (User/User)\n" + "Выберите тип играков (1, 2, 3) :")
+
+    if parameters == "1":
+        new_game = Game()
+    elif parameters == "2":
+        new_game = Game("Computer1", "Computer2")
+    elif parameters == "3":
+        new_game = Game("User1", "User2")
+    else:
+        print("Указанное значение не корректно!")
+
+    while True:
+        one_step = new_game.game_round()
+        if one_step == "Computer1 win!":
+            print("Computer1 win!")
+            break
+        elif one_step == "Computer2 win!":
+            print("Computer1 win")
+            break
+        elif one_step == "User1 win!":
+            print("User1 win!")
+            break
+        elif one_step == "User2 win!":
+            print("User2 win!")
+            break
+        elif one_step == "User1 lose":
+            print("User1 lose")
+            break
+        elif one_step == "User2 lose":
+            print("User2 lose")
+            break
 
 
 if __name__ == '__main__':
-    new_game = Game()
-    while True:
-        one_step = new_game.game_round()
-        if one_step == 0:
-            print("user 1 lose")
-            break
-        elif one_step == 1:
-            print("user 1 win")
-            break
-        elif one_step == 3:
-            print("user 2 lose")
-            break
-        elif one_step == 4:
-            print("user 2 win")
-            break
+    start_game()
